@@ -1,0 +1,48 @@
+version: '3.5'
+
+services:
+  app:
+    build:
+      context: .docker/php
+    environment:
+      - DATABASE_URL=mysql://root:123456@db:3306/base?serverVersion=5.7
+    volumes:
+      - ./app:/var/www/app
+    networks:
+      - base_net
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=base
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=123456
+      - MYSQL_ROOT_PASSWORD=123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - .docker/database/dump:/sql
+      - .docker/database/data:/var/lib/mysql
+    networks:
+      - base_net
+
+
+  nginx:
+    build:
+      context: .docker/nginx
+    volumes:
+      - ./app:/var/www/app:delegated
+      - .docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - .docker/nginx/sites:/etc/nginx/sites-available
+      - .docker/nginx/conf.d/:/etc/nginx/conf.d
+    ports:
+      - '80:80'
+    networks:
+      - base_net
+    depends_on:
+      - app
+
+networks:
+  base_net:
