@@ -2,6 +2,8 @@
 - para rodar na sua maquina:
 #docker-compose build
 
+#cp app/.env.example app/.env
+
 - sobe o projeto
 #docker-compose up
 
